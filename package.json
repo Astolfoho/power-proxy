@@ -1,6 +1,6 @@
 {
   "name": "power-proxy",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "description": "an easy and powerfull http proxy for node",
   "main": "src/index.js",
   "types": "src/index.d.ts",
@@ -13,6 +13,7 @@
   "dependencies": {
     "@types/node": "^9.6.1",
     "csr-gen": "^0.2.1",
+    "openssl": "^1.1.0",
     "ssl-utils": "^0.3.0",
     "yarn": "^1.5.1"
   },

@@ -46,10 +46,6 @@ class PowerProxy {
     rawHandler(socket) {
         socket.once('data', buffer => {
             socket.pause();
-            var pcall = this.getProxyCall(socket);
-            if (this._callback) {
-                this._callback(pcall);
-            }
             let byte = buffer[0];
             let protocol = "";
             let str = this.readBufferAsString(buffer);
@@ -156,6 +152,9 @@ class PowerProxy {
     }
     httpHandler(req, resp) {
         var call = this.getProxyCall(req.socket);
+        if (this._callback) {
+            this._callback(call);
+        }
         var preq = {
             host: req.headers["host"] || "",
             method: req.method || "GET?",
@@ -208,14 +207,23 @@ process.on('uncaughtException', function (err) {
 });
 class ProxyCall {
     constructor() {
+        //private _ee: { [id: string] : Array<(...args: any[]) => void> } = {};
         this._ee = new events.EventEmitter();
     }
     on(event, callback) {
         this._ee.on(event, callback);
+        // if (!callback) { return this;} 
+        // this._ee[event] = this._ee[event] || [];
+        // this._ee[event].push(callback);   
         return this;
     }
     emit(event, ...args) {
         events.EventEmitter.prototype.emit.apply(this._ee, arguments);
+        // if(this._ee[event]){
+        //     this._ee[event].forEach((cb) => {
+        //         cb(args);
+        //     });
+        // }
         return this;
     }
 }

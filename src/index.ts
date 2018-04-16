@@ -50,11 +50,7 @@ export class PowerProxy {
     private rawHandler(socket: net.Socket) {
         socket.once('data', buffer => {
             socket.pause();
-            var pcall = this.getProxyCall(socket);
-            if(this._callback){
-                this._callback(pcall);
-            }
-
+            
             let byte = buffer[0];
             let protocol: string = "";
             let str = this.readBufferAsString(buffer);
@@ -185,6 +181,9 @@ export class PowerProxy {
         
         
         var call = this.getProxyCall(req.socket);
+        if(this._callback){
+            this._callback(call);
+        }
 
         var preq : IProxyCallRequest = {      
             host : req.headers["host"] || "",
@@ -275,14 +274,15 @@ export interface IProxyCall {
 
 class ProxyCall implements IProxyCall {
 
-    private _ee: events.EventEmitter;
+    //private _ee: { [id: string] : Array<(...args: any[]) => void> } = {};
+    private _ee:events.EventEmitter = new events.EventEmitter();
 
-    constructor() {
-        this._ee = new events.EventEmitter();
-    }
 
-    public on(event: string, callback: (...args: any[]) => void): IProxyCall {
-        this._ee.on(event, callback);
+    public on(event: string, callback: (...args: any[]) => void): IProxyCall {  
+        this._ee.on(event,callback);
+        // if (!callback) { return this;} 
+        // this._ee[event] = this._ee[event] || [];
+        // this._ee[event].push(callback);   
         return this;
     }
 
@@ -294,6 +294,11 @@ class ProxyCall implements IProxyCall {
     emit(event: "client-response-data-finish"): IProxyCall
     public emit(event: string, ...args: any[]): IProxyCall {
         events.EventEmitter.prototype.emit.apply(this._ee, arguments);
+        // if(this._ee[event]){
+        //     this._ee[event].forEach((cb) => {
+        //         cb(args);
+        //     });
+        // }
         return this;
     }
 }

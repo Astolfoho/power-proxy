@@ -1,6 +1,6 @@
 {
   "name": "power-proxy",
-  "version": "0.0.25",
+  "version": "0.0.26",
   "description": "an easy and powerfull http proxy for node",
   "main": "src/index.js",
   "types": "src/index.d.ts",

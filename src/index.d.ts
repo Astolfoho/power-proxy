@@ -1,4 +1,5 @@
 /// <reference types="node" />
+import * as url from 'url';
 export declare class PowerProxy {
     private _callback?;
     private _ee;
@@ -16,11 +17,6 @@ export declare class PowerProxy {
     private readBufferAsString(buffer);
     private httpHandler(req, resp);
 }
-export interface IProxyRequest {
-    method: string;
-    host: string;
-    path: string;
-}
 export interface IProxyCall {
     on(event: "client-request", callback: (request: IProxyCallRequest) => void): IProxyCall;
     on(event: "client-request-data", callback: (data: Buffer) => void): IProxyCall;
@@ -30,7 +26,6 @@ export interface IProxyCall {
     on(event: "client-response-data-finish", callback: () => void): IProxyCall;
 }
 export interface IProxyCallRequest {
-    host: string;
-    path: string;
     method: string;
+    url: url.Url;
 }

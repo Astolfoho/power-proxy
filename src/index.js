@@ -13,6 +13,7 @@ const net = __importStar(require("net"));
 const fs = __importStar(require("fs"));
 const ssl = __importStar(require("ssl-utils"));
 const events = __importStar(require("events"));
+const url = __importStar(require("url"));
 let privateKeyPath = __dirname + '//server.key';
 let certificatePath = __dirname + '//server.crt';
 class PowerProxy {
@@ -53,6 +54,7 @@ class PowerProxy {
                 //this.handleConnect(socket,str);
                 let host = this.getConnectHostName(str);
                 socket.encrypted = true;
+                socket.hostname = host;
                 socket.on('error', () => { });
                 if (this._servers[host]) {
                     this.proceed(host, socket);
@@ -155,10 +157,11 @@ class PowerProxy {
         if (this._callback) {
             this._callback(call);
         }
+        var fullurl = (req.connection.encrypted ? 'https://' + req.headers["host"] : '') + req.url;
+        var inf = new url.URL(fullurl);
         var preq = {
-            host: req.headers["host"] || "",
+            url: inf,
             method: req.method || "GET?",
-            path: req.url || "",
         };
         call.emit("client-request", preq);
         var opt = { headers: {} };
@@ -227,6 +230,6 @@ class ProxyCall {
         return this;
     }
 }
-//var proxy = new PowerProxy();
-//proxy.listen(8888);
+//  var proxy = new PowerProxy();
+//  proxy.listen(8888);
 //# sourceMappingURL=index.js.map

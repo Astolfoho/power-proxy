@@ -5,6 +5,7 @@ import * as crypto from 'crypto'
 import * as fs from 'fs'
 import * as ssl from 'ssl-utils'
 import * as events from 'events'
+import * as url from 'url'
 
 let privateKeyPath = __dirname + '//server.key';
 let certificatePath = __dirname + '//server.crt';
@@ -62,6 +63,7 @@ export class PowerProxy {
                 let host = this.getConnectHostName(str);
 
                 (<any>socket).encrypted = true;
+                (<any>socket).hostname = host;
 
                 socket.on('error', () => { });
 
@@ -185,10 +187,13 @@ export class PowerProxy {
             this._callback(call);
         }
 
-        var preq : IProxyCallRequest = {      
-            host : req.headers["host"] || "",
+        var fullurl = ((<any>req.connection).encrypted ? 'https://'+ req.headers["host"] : '') + req.url;
+        var inf: url.URL = new url.URL(fullurl);
+
+
+        var preq : IProxyCallRequest = {    
+            url:inf,
             method : req.method || "GET?",
-            path : req.url || "",
         }; 
 
         call.emit("client-request", preq);
@@ -256,11 +261,6 @@ process.on('uncaughtException', function (err) {
     console.log('Caught exception: ' + err);
 });
 
-export interface IProxyRequest {
-    method: string;
-    host: string;
-    path: string;
-}
 
 export interface IProxyCall {
     on(event: "client-request", callback: (request:IProxyCallRequest) => void): IProxyCall;
@@ -304,10 +304,9 @@ class ProxyCall implements IProxyCall {
 }
 
 export interface IProxyCallRequest{
-    host:string;
-    path:string;
     method:string;
+    url:url.Url;
 }
 
-//var proxy = new PowerProxy();
-//proxy.listen(8888);
+//  var proxy = new PowerProxy();
+//  proxy.listen(8888);
